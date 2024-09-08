@@ -20,8 +20,7 @@ get_square :: proc( square : board_square) -> u64 {
 white :: 0
 black :: 1
 
-/*
-board_square2 :: enum {
+square_to_coordinates : []string = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
     "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
     "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
@@ -31,7 +30,7 @@ board_square2 :: enum {
     "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 }
-*/
+
 
 get_bit :: proc(bitboard, square: u64) -> bool {
     return (bitboard & (1 << square)) > 0
@@ -56,6 +55,11 @@ count_bits :: proc(bitboard: u64) -> int {
         bb &= bb - 1
     }
     return count
+}
+
+get_ls1b_index :: proc(bitboard: u64) -> int {
+    if bitboard == 0 { return -1 }
+    return count_bits((bitboard & -bitboard) - 1 )
 }
 
 // Attacks
@@ -261,13 +265,15 @@ main :: proc() {
     init_leapers_attacks()
 
     block: u64
-    set_bit(&block, get_square(.d7) )
+    //set_bit(&block, get_square(.d7) )
     set_bit(&block, get_square(.d2) )
     set_bit(&block, get_square(.d1) )
     set_bit(&block, get_square(.b4) )
     //set_bit(&block, get_square(.g4) )
     print_bitboard(block)
-    fmt.printf("count: %v\n", count_bits(block))
+    fmt.printf("coord: %v\n",  square_to_coordinates[ get_ls1b_index(block) ] )
 
-
+    test: u64
+    set_bit(&test, u64(get_ls1b_index(block)))
+     print_bitboard(test)
 }
