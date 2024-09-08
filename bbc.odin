@@ -55,10 +55,10 @@ not_ab_file :u64: 18229723555195321596
 
 pawn_attacks: [2][64]u64
 knight_attacks: [64]u64
+king_attacks: [64]u64
 
 mask_pawn_attacks :: proc(side: int, square: u64 ) -> u64 {
     attacks, bitboard : u64
-
     set_bit( &bitboard, square)
 
     if( side == white ) {
@@ -74,7 +74,6 @@ mask_pawn_attacks :: proc(side: int, square: u64 ) -> u64 {
 
 mask_knight_attacks :: proc(square: u64) -> u64 {
     attacks, bitboard : u64
-
     set_bit( &bitboard, square)
 
     if ((bitboard >> 17) & not_h_file) != 0 { attacks |= (bitboard >> 17) }
@@ -90,11 +89,30 @@ mask_knight_attacks :: proc(square: u64) -> u64 {
     return attacks
 }
 
+mask_king_attacks :: proc(square: u64) -> u64 {
+    attacks, bitboard : u64
+    set_bit( &bitboard, square)
+
+    if (bitboard >> 8) != 0 { attacks |= (bitboard >> 8) }
+    if ((bitboard >> 9) & not_h_file) != 0 { attacks |= (bitboard >> 9) }
+    if ((bitboard >> 7) & not_a_file) != 0 { attacks |= (bitboard >> 7) }
+    if ((bitboard >> 1) & not_h_file) != 0 { attacks |= (bitboard >> 1) }
+
+    if (bitboard << 8) != 0 { attacks |= (bitboard << 8) }
+    if ((bitboard << 9) & not_a_file) != 0 { attacks |= (bitboard << 9) }
+    if ((bitboard << 7) & not_h_file) != 0 { attacks |= (bitboard << 7) }
+    if ((bitboard << 1) & not_a_file) != 0 { attacks |= (bitboard << 1) }
+
+    return attacks
+}
+
+
 init_leapers_attacks :: proc() {
     for square := 0; square < 64 ; square += 1 {
         pawn_attacks[white][square] = mask_pawn_attacks(white, u64(square))
         pawn_attacks[black][square] = mask_pawn_attacks(black, u64(square))
         knight_attacks[square] = mask_knight_attacks(u64(square))
+        king_attacks[square] = mask_king_attacks(u64(square))
     }
 }
 
@@ -121,7 +139,7 @@ print_bitboard :: proc(bitboard: u64) {
 main :: proc() {
     init_leapers_attacks()
 
-    print_bitboard( mask_knight_attacks( get_square(.e4)))
+    //print_bitboard( mask_king_attacks( get_square(.a1)))
     for square := 0; square < 64 ; square += 1 {
-        print_bitboard(knight_attacks[square]) }
+        print_bitboard(king_attacks[square]) }
 }
