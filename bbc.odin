@@ -47,6 +47,17 @@ pop_bit :: proc( bitboard: ^u64, square: u64 ) {
     }
 }
 
+count_bits :: proc(bitboard: u64) -> int {
+    count: int
+    bb := bitboard
+
+    for ; bb > 0 ; {
+        count += 1
+        bb &= bb - 1
+    }
+    return count
+}
+
 // Attacks
 not_a_file  :u64: 18374403900871474942
 not_h_file  :u64: 9187201950435737471
@@ -250,13 +261,13 @@ main :: proc() {
     init_leapers_attacks()
 
     block: u64
-    set_bit(&block, get_square(.d5) )
-    set_bit(&block, get_square(.g4) )
+    set_bit(&block, get_square(.d7) )
+    set_bit(&block, get_square(.d2) )
     set_bit(&block, get_square(.d1) )
     set_bit(&block, get_square(.b4) )
+    //set_bit(&block, get_square(.g4) )
     print_bitboard(block)
+    fmt.printf("count: %v\n", count_bits(block))
 
-    print_bitboard( rook_attacks_on_the_fly ( get_square(.d4) , block))
-    //for square :u64= 0; square < 64 ; square += 1 {
-    //    print_bitboard(mask_rook_attacks(square)) }
+
 }
