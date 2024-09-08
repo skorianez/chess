@@ -13,6 +13,13 @@ board_square :: enum {
     a1, b1, c1, d1, e1, f1, g1, h1,
 }
 
+get_square :: proc( square : board_square) -> u64 {
+    return u64(square)
+}
+
+white :: 0
+black :: 1
+
 /*
 board_square2 :: enum {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -30,13 +37,64 @@ get_bit :: proc(bitboard, square: u64) -> bool {
     return (bitboard & (1 << square)) > 0
 }
 
-set_bit :: proc( bitboard: ^u64, square: board_square ) {
-     bitboard^ |= ( 1 << u64(square) )
+set_bit :: proc( bitboard: ^u64, square: u64 ) {
+     bitboard^ |= ( 1 << square )
 }
 
-pop_bit :: proc( bitboard: ^u64, square: board_square ) {
-    if get_bit(bitboard^, u64(square))  {
-        bitboard^ ~= (1 << u64(square))
+pop_bit :: proc( bitboard: ^u64, square: u64 ) {
+    if get_bit(bitboard^, square)  {
+        bitboard^ ~= (1 << square)
+    }
+}
+
+// Attacks
+not_a_file  :u64: 18374403900871474942
+not_h_file  :u64: 9187201950435737471
+not_hg_file :u64: 4557430888798830399
+not_ab_file :u64: 18229723555195321596
+
+pawn_attacks: [2][64]u64
+knight_attacks: [64]u64
+
+mask_pawn_attacks :: proc(side: int, square: u64 ) -> u64 {
+    attacks, bitboard : u64
+
+    set_bit( &bitboard, square)
+
+    if( side == white ) {
+        if ((bitboard >> 7) & not_a_file) != 0 { attacks |= (bitboard >> 7) }
+        if ((bitboard >> 9) & not_h_file) != 0 { attacks |= (bitboard >> 9) }
+    } else {
+        if ((bitboard << 7) & not_h_file) != 0 { attacks |= (bitboard << 7) }
+        if ((bitboard << 9) & not_a_file) != 0 { attacks |= (bitboard << 9) }
+    }
+
+    return attacks
+}
+
+mask_knight_attacks :: proc(square: u64) -> u64 {
+    attacks, bitboard : u64
+
+    set_bit( &bitboard, square)
+
+    if ((bitboard >> 17) & not_h_file) != 0 { attacks |= (bitboard >> 17) }
+    if ((bitboard >> 15) & not_a_file) != 0 { attacks |= (bitboard >> 15) }
+    if ((bitboard >> 10) & not_hg_file) != 0 { attacks |= (bitboard >> 10) }
+    if ((bitboard >> 6) & not_ab_file) != 0 { attacks |= (bitboard >> 6) }
+
+    if ((bitboard << 17) & not_a_file) != 0 { attacks |= (bitboard << 17) }
+    if ((bitboard << 15) & not_h_file) != 0 { attacks |= (bitboard << 15) }
+    if ((bitboard << 10) & not_ab_file) != 0 { attacks |= (bitboard << 10) }
+    if ((bitboard << 6) & not_hg_file) != 0 { attacks |= (bitboard << 6) }
+
+    return attacks
+}
+
+init_leapers_attacks :: proc() {
+    for square := 0; square < 64 ; square += 1 {
+        pawn_attacks[white][square] = mask_pawn_attacks(white, u64(square))
+        pawn_attacks[black][square] = mask_pawn_attacks(black, u64(square))
+        knight_attacks[square] = mask_knight_attacks(u64(square))
     }
 }
 
@@ -61,17 +119,9 @@ print_bitboard :: proc(bitboard: u64) {
 
 
 main :: proc() {
+    init_leapers_attacks()
 
-    bitboard: u64
-    set_bit( &bitboard, .e4 )
-    set_bit( &bitboard, .c3 )
-    set_bit( &bitboard, .f2 )
-
-    print_bitboard(bitboard)
-
-    pop_bit( &bitboard, .e4 )
-    pop_bit( &bitboard, .f2 )
-    pop_bit( &bitboard, .f2 )
-    print_bitboard(bitboard)
-
+    print_bitboard( mask_knight_attacks( get_square(.e4)))
+    for square := 0; square < 64 ; square += 1 {
+        print_bitboard(knight_attacks[square]) }
 }
