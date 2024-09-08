@@ -46,8 +46,8 @@ pop_bit :: proc( bitboard: ^u64, square: u64 ) {
     }
 }
 
-count_bits :: proc(bitboard: u64) -> int {
-    count: int
+count_bits :: proc(bitboard: u64) -> uint {
+    count: uint
     bb := bitboard
 
     for ; bb > 0 ; {
@@ -59,7 +59,7 @@ count_bits :: proc(bitboard: u64) -> int {
 
 get_ls1b_index :: proc(bitboard: u64) -> int {
     if bitboard == 0 { return -1 }
-    return count_bits((bitboard & -bitboard) - 1 )
+    return int(count_bits((bitboard & -bitboard) - 1 ))
 }
 
 // Attacks
@@ -261,19 +261,28 @@ print_bitboard :: proc(bitboard: u64) {
 }
 
 
+set_occupancy :: proc(index, bits_in_mask :uint, attack_mask :u64) -> u64 {
+    occupancy : u64
+    am := attack_mask
+
+    for count :uint= 0; count < bits_in_mask ; count += 1 {
+        square := u64(get_ls1b_index(am))
+        pop_bit( &am , square )
+        if index & (1 << count) > 0 {
+            occupancy |= (1 << square)
+        }
+    }
+
+    return occupancy
+}
+
 main :: proc() {
     init_leapers_attacks()
 
-    block: u64
-    //set_bit(&block, get_square(.d7) )
-    set_bit(&block, get_square(.d2) )
-    set_bit(&block, get_square(.d1) )
-    set_bit(&block, get_square(.b4) )
-    //set_bit(&block, get_square(.g4) )
-    print_bitboard(block)
-    fmt.printf("coord: %v\n",  square_to_coordinates[ get_ls1b_index(block) ] )
+    attack_mask := mask_rook_attacks( get_square(.a1))
+    occupancy := set_occupancy( 4095, count_bits(attack_mask),attack_mask)
 
-    test: u64
-    set_bit(&test, u64(get_ls1b_index(block)))
-     print_bitboard(test)
+    print_bitboard(occupancy)
+   // fmt.printf("coord: %v\n",  square_to_coordinates[ get_ls1b_index(block) ] )
+
 }
