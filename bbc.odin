@@ -57,6 +57,7 @@ count_bits :: proc(bitboard: u64) -> uint {
     return count
 }
 
+// TODO MUDAR o retorno
 get_ls1b_index :: proc(bitboard: u64) -> int {
     if bitboard == 0 { return -1 }
     return int(count_bits((bitboard & -bitboard) - 1 ))
@@ -67,6 +68,29 @@ not_a_file  :u64: 18374403900871474942
 not_h_file  :u64: 9187201950435737471
 not_hg_file :u64: 4557430888798830399
 not_ab_file :u64: 18229723555195321596
+
+
+bishop_relevant_bits: [64]uint = {
+    6, 5, 5, 5, 5, 5, 5, 6,
+    5, 5, 5, 5, 5, 5, 5, 5,
+    5, 5, 7, 7, 7, 7, 5, 5,
+    5, 5, 7, 9, 9, 7, 5, 5,
+    5, 5, 7, 9, 9, 7, 5, 5,
+    5, 5, 7, 7, 7, 7, 5, 5,
+    5, 5, 5, 5, 5, 5, 5, 5,
+    6, 5, 5, 5, 5, 5, 5, 6,
+}
+
+rook_relevant_bits: [64]uint = {
+    12, 11, 11, 11, 11, 11, 11, 12,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    12, 11, 11, 11, 11, 11, 11, 12,
+}
 
 pawn_attacks: [2][64]u64
 knight_attacks: [64]u64
@@ -279,10 +303,12 @@ set_occupancy :: proc(index, bits_in_mask :uint, attack_mask :u64) -> u64 {
 main :: proc() {
     init_leapers_attacks()
 
-    attack_mask := mask_rook_attacks( get_square(.a1))
-    occupancy := set_occupancy( 4095, count_bits(attack_mask),attack_mask)
+    for rank :u64= 0; rank < 8 ; rank += 1 {
+        for file :u64= 0; file < 8; file += 1 {
+            square :u64= rank * 8 + file
 
-    print_bitboard(occupancy)
-   // fmt.printf("coord: %v\n",  square_to_coordinates[ get_ls1b_index(block) ] )
-
+            fmt.printf("%v, ", count_bits(mask_rook_attacks(square)) )
+        }
+        fmt.printf("\n")
+    }
 }
