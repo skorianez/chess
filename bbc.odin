@@ -106,6 +106,38 @@ mask_king_attacks :: proc(square: u64) -> u64 {
     return attacks
 }
 
+mask_bishop_attacks :: proc(square: u64) -> u64 {
+    attacks: u64
+
+    tr :int = int(square) / 8
+    tf :int = int(square) % 8
+
+    r := tr + 1; f := tf + 1
+    for ; r <= 6 && f <= 6 ; f +=1 {
+        attacks |= (1 << u64(r * 8 + f))
+        r +=1
+    }
+
+    r = tr - 1; f = tf + 1
+    for ; r >= 1 && f <= 6 ; f +=1 {
+        attacks |= (1 << u64(r * 8 + f))
+        r -=1
+    }
+
+    r = tr + 1; f = tf - 1
+    for ; r <= 6 && f >= 1 ; f -=1 {
+        attacks |= (1 << u64(r * 8 + f))
+        r +=1
+    }
+
+    r = tr - 1; f = tf - 1
+    for ; r >= 1 && f >= 1 ; f -=1 {
+        attacks |= (1 << u64(r * 8 + f))
+        r -=1
+    }
+
+    return attacks
+}
 
 init_leapers_attacks :: proc() {
     for square := 0; square < 64 ; square += 1 {
@@ -139,7 +171,7 @@ print_bitboard :: proc(bitboard: u64) {
 main :: proc() {
     init_leapers_attacks()
 
-    //print_bitboard( mask_king_attacks( get_square(.a1)))
-    for square := 0; square < 64 ; square += 1 {
-        print_bitboard(king_attacks[square]) }
+    //print_bitboard( mask_bishop_attacks( get_square(.d4)))
+    for square :u64= 0; square < 64 ; square += 1 {
+        print_bitboard(mask_bishop_attacks(square)) }
 }
