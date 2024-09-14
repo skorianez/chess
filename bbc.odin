@@ -300,23 +300,12 @@ set_occupancy :: proc(index, bits_in_mask :uint, attack_mask :u64) -> u64 {
     return occupancy
 }
 
-state :u32 =  1804289383 // Gerado vai random()
-
-get_random_number :: proc() -> u32 {
-    number := state
-
-    number ~= (number << 13)
-    number ~= (number >> 17)
-    number ~= (number << 5)
-    state = number
-
-    return number
-}
-
-
 main :: proc() {
     init_leapers_attacks()
 
-    fmt.printf("%d\n", get_random_number())
+    print_bitboard( u64(get_random_u32_number()))
+    print_bitboard( u64(get_random_u32_number() & 0xFFFF))
+    print_bitboard( get_random_u64_number())
+    print_bitboard( generate_magic_number())
 
 }
