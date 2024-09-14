@@ -300,15 +300,23 @@ set_occupancy :: proc(index, bits_in_mask :uint, attack_mask :u64) -> u64 {
     return occupancy
 }
 
+state :u32 =  1804289383 // Gerado vai random()
+
+get_random_number :: proc() -> u32 {
+    number := state
+
+    number ~= (number << 13)
+    number ~= (number >> 17)
+    number ~= (number << 5)
+    state = number
+
+    return number
+}
+
+
 main :: proc() {
     init_leapers_attacks()
 
-    for rank :u64= 0; rank < 8 ; rank += 1 {
-        for file :u64= 0; file < 8; file += 1 {
-            square :u64= rank * 8 + file
+    fmt.printf("%d\n", get_random_number())
 
-            fmt.printf("%v, ", count_bits(mask_rook_attacks(square)) )
-        }
-        fmt.printf("\n")
-    }
 }
