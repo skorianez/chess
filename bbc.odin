@@ -308,6 +308,7 @@ print_bitboard :: proc(bitboard: u64) {
 }
 
 print_board :: proc() {
+    fmt.println()
     for rank in 0..<8 {
         for file in 0..<8 {
             square := rank * 8 + file
@@ -413,7 +414,52 @@ get_queen_attacks:: proc(square: i32, occupancy: u64) -> u64 {
     return queen_attacks
 }
     
+is_square_attacked ::proc(square, side: i32) -> i32{
+    // attacked by white pawns
+    if (side == white) && (pawn_attacks[black][square] & bitboards[piece.P] > 0)
+    { return 1 }
 
+    // attacked by black pawns
+    if (side == black) && (pawn_attacks[white][square] & bitboards[piece.p] > 0)
+    { return 1 }
+
+    // attacked by knight
+    if (knight_attacks[square]  & ((side == white)? bitboards[piece.N] : bitboards[piece.n])) > 0
+    { return 1 }
+
+    // attacked by bishop
+    if (get_bishop_attacks(square, occupancies[both]) & (side == white ? bitboards[piece.B] : bitboards[piece.b])) >0
+    { return 1}
+
+    // attacked by rook
+    if (get_rook_attacks(square, occupancies[both]) & (side == white ? bitboards[piece.R] : bitboards[piece.r])) >0
+    { return 1}
+
+    // attacked by queen
+    if (get_queen_attacks(square, occupancies[both]) & (side == white ? bitboards[piece.Q] : bitboards[piece.q])) >0
+    { return 1}
+
+
+    // attack by king
+    if (king_attacks[square]  & ((side == white)? bitboards[piece.K] : bitboards[piece.k])) > 0
+    { return 1 }
+
+    return 0 
+}
+
+print_attacked_squares :: proc(side: i32) {
+    for rank in 0..<8 {
+        for file in 0..<8 {
+            square := rank * 8 + file
+            if file == 0 {
+                fmt.printf("  %d ", 8 - rank)
+            }
+            fmt.printf(" %c",is_square_attacked(i32(square), side) > 0 ? '*' : '.') 
+        }
+        fmt.println()
+    }
+    fmt.print ("\n     a b c d e f g h\n\n")
+}
 
 init_all ::proc(){
     init_leapers_attacks()
@@ -431,7 +477,11 @@ castle : i32
 main :: proc() {
     init_all()
 
-    occupancies :u64
-   print_bitboard( get_queen_attacks(get_square(.d4), occupancies) )
+    parse_fen(tricky_position)
+    print_board()
+    //print_bitboard(occupancies[both])
+
+    print_attacked_squares(white)
+    print_attacked_squares(black)
 
 }
