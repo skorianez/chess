@@ -412,23 +412,13 @@ castle : i32
 main :: proc() {
     init_all()
 
-    set_bit(&bitboards[piece.P], get_square(.a2) )
-    set_bit(&bitboards[piece.P], get_square(.b2) )
-    set_bit(&bitboards[piece.P], get_square(.c2) )
-    set_bit(&bitboards[piece.P], get_square(.d2) )
-    set_bit(&bitboards[piece.P], get_square(.e2) )
-    set_bit(&bitboards[piece.P], get_square(.f2) )
-    set_bit(&bitboards[piece.P], get_square(.g2) )
-    set_bit(&bitboards[piece.P], get_square(.h2) )
-    set_bit(&bitboards[piece.N], get_square(.b1) )
-    set_bit(&bitboards[piece.N], get_square(.g1) )
-    enpassant = get_square(.e3)
-
-    castle = 0b1111
-
-    //print_bitboard(bitboards[piece.P])
-
+    parse_fen(tricky_position)
     print_board()
 
+    parse_fen(killer_position)
+    print_board()
+
+    parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kq - 0 1 ")
+    print_board()
 
 }
