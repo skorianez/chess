@@ -2,7 +2,7 @@ package bbc
 
 import "core:fmt"
 
-board_square :: enum {
+board_square :: enum i32 {
     a8, b8, c8, d8, e8, f8, g8, h8,
     a7, b7, c7, d7, e7, f7, g7, h7,
     a6, b6, c6, d6, e6, f6, g6, h6,
@@ -11,17 +11,32 @@ board_square :: enum {
     a3, b3, c3, d3, e3, f3, g3, h3,
     a2, b2, c2, d2, e2, f2, g2, h2,
     a1, b1, c1, d1, e1, f1, g1, h1,
+    no_sq,
 }
 
 get_square :: proc( square : board_square) -> i32 {
     return i32(square)
 }
 
-// C ENUM
+// C ENUM COLORS
 white :: 0
 black :: 1
+both :: 2
+// C ENUM PIECE
 rook :: 0
 bishop :: 1
+
+// CASTLE STATE
+wk :: 0b0001 // white king can castle to the king side
+wq :: 0b0010 // white king can castle to the queen side
+bk :: 0b0100 // black king can castle to the king side
+bq :: 0b1000 // black king can castle to the queen side
+
+// PIECES Up Case WHITE, Lower Case BLACK
+piece :: enum i32 { P,N,B,R,Q,K,p,n,b,r,q,k }
+unicode_pieces : [12]string = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+// USAR: fmt.printf("piece: %s\n", unicode_pieces[piece.P] ) // ♙
+
 
 square_to_coordinates : []string = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -95,7 +110,6 @@ rook_relevant_bits: [64]i32 = {
 }
 
 // ATTACKS VARIABLES
-
 pawn_attacks: [2][64]u64
 knight_attacks: [64]u64
 king_attacks: [64]u64
@@ -105,7 +119,6 @@ bishop_attacks: [64][512]u64
 
 rook_masks: [64]u64
 rook_attacks: [64][4096]u64
-
 
 mask_pawn_attacks :: proc(side: i32, square: i32 ) -> u64 {
     attacks, bitboard : u64
@@ -266,7 +279,6 @@ rook_attacks_on_the_fly :: proc(square: i32, block: u64) -> u64 {
     return attacks
 }
 
-
 init_leapers_attacks :: proc() {
     for square in 0..<64 {
         pawn_attacks[white][square] = mask_pawn_attacks(white, i32(square))
@@ -294,7 +306,6 @@ print_bitboard :: proc(bitboard: u64) {
     fmt.print ("\n     a b c d e f g h\n")
     fmt.printf("\n     Bitboard: %v\n\n", bitboard)
 }
-
 
 set_occupancy :: proc(index, bits_in_mask :i32, attack_mask :u64) -> u64 {
     occupancy : u64
@@ -354,26 +365,24 @@ get_rook_attacks:: proc(square: i32, occupancy: u64) -> u64 {
     return rook_attacks[square][o]
 }
 
-
 init_all ::proc(){
     init_leapers_attacks()
     init_sliders_attacks(bishop)
     init_sliders_attacks(rook)
 }
 
+// DEFINE BITBOARDS (GAME STRUCT?)
+bitboards: [12]u64
+occupancies: [3]u64
+side: i32 = -1
+enpassant : i32 = get_square(.no_sq)
+castle : i32
+
 main :: proc() {
     init_all()
 
-    occupancy :u64
-    set_bit(&occupancy, get_square(.c5) )
-    set_bit(&occupancy, get_square(.f2) )
-    set_bit(&occupancy, get_square(.g7) )
-    set_bit(&occupancy, get_square(.b2) )
-    set_bit(&occupancy, get_square(.g5) )
-    set_bit(&occupancy, get_square(.e2) )
-    set_bit(&occupancy, get_square(.e7) )
-    print_bitboard(occupancy)
+    set_bit(&bitboards[piece.P], get_square(.e2) )
+    print_bitboard(bitboards[piece.P])
+    fmt.printf("piece: %s\n", unicode_pieces[piece.P] )
 
-    print_bitboard(get_bishop_attacks(get_square(.d4), occupancy))
-    print_bitboard(get_rook_attacks(get_square(.e5), occupancy))
 }
