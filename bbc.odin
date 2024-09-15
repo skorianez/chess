@@ -94,9 +94,18 @@ rook_relevant_bits: [64]i32 = {
     12, 11, 11, 11, 11, 11, 11, 12,
 }
 
+// ATTACKS VARIABLES
+
 pawn_attacks: [2][64]u64
 knight_attacks: [64]u64
 king_attacks: [64]u64
+
+bishop_masks: [64]u64
+bishop_attacks: [64][512]u64
+
+rook_masks: [64]u64
+rook_attacks: [64][4096]u64
+
 
 mask_pawn_attacks :: proc(side: i32, square: i32 ) -> u64 {
     attacks, bitboard : u64
@@ -237,19 +246,19 @@ rook_attacks_on_the_fly :: proc(square: i32, block: u64) -> u64 {
     tr := square / 8
     tf := square % 8
 
-    for r := tr + 0 ; r <= 7; r += 1 {
+    for r := tr + 1 ; r <= 7; r += 1 {
         attacks |= 1 << u64(r * 8 + tf)
         if ((1 << u64(r * 8 + tf)) & block) > 0 { break }
     }
-    for r := tr - 0 ; r >= 0; r -= 1 {
+    for r := tr - 1 ; r >= 0; r -= 1 {
         attacks |= 1 << u64(r * 8 + tf)
         if ((1 << u64(r * 8 + tf)) & block) > 0 { break }
     }
-    for f := tf + 0 ; f <= 7; f += 1 {
+    for f := tf + 1 ; f <= 7; f += 1 {
         attacks |= 1 << u64(tr * 8 + f)
         if ((1 << u64(tr * 8 + f)) & block) > 0 { break }
     }
-    for f := tf - 0 ; f >= 0; f -= 1 {
+    for f := tf - 1 ; f >= 0; f -= 1 {
         attacks |= 1 << u64(tr * 8 + f)
         if ((1 << u64(tr * 8 + f)) & block) > 0 { break }
     }
@@ -302,8 +311,69 @@ set_occupancy :: proc(index, bits_in_mask :i32, attack_mask :u64) -> u64 {
     return occupancy
 }
 
-main :: proc() {
-    init_leapers_attacks()
+init_sliders_attacks:: proc(piece :i32) {
+    for square in 0..<64 {
+        bishop_masks[square] = mask_bishop_attacks(i32(square))
+        rook_masks[square] = mask_rook_attacks(i32(square))
 
-    init_magic_number()
+        attack_mask := piece == bishop ? bishop_masks[square] : rook_masks[square]
+        relevant_bits_count := count_bits(attack_mask)
+
+        occupancy_indicies := 1 << u32(relevant_bits_count)
+
+        for index in 0..<occupancy_indicies {
+            if piece == bishop {
+                occupancy := set_occupancy(i32(index), relevant_bits_count, attack_mask)
+                magic_index := (occupancy * bishop_magic_numbers[square]) >> u32(64 - bishop_relevant_bits[square])
+                bishop_attacks[square][magic_index] = bishop_attacks_on_the_fly(i32(square), occupancy)
+            } else {
+                occupancy := set_occupancy(i32(index), relevant_bits_count, attack_mask)
+                magic_index := (occupancy * rook_magic_numbers[square]) >> u32(64 - rook_relevant_bits[square])
+                rook_attacks[square][magic_index] = rook_attacks_on_the_fly(i32(square), occupancy)
+
+            }
+        }
+    }
+}
+
+get_bishop_attacks:: proc(square: i32, occupancy: u64) -> u64 {
+    o := occupancy
+    o &= bishop_masks[square]
+    o *= bishop_magic_numbers[square]
+    o >>= 64 - u32(bishop_relevant_bits[square])
+
+    return bishop_attacks[square][o]
+}
+
+get_rook_attacks:: proc(square: i32, occupancy: u64) -> u64 {
+    o := occupancy
+    o &= rook_masks[square]
+    o *= rook_magic_numbers[square]
+    o >>= (64 - u32(rook_relevant_bits[square]))
+
+    return rook_attacks[square][o]
+}
+
+
+init_all ::proc(){
+    init_leapers_attacks()
+    init_sliders_attacks(bishop)
+    init_sliders_attacks(rook)
+}
+
+main :: proc() {
+    init_all()
+
+    occupancy :u64
+    set_bit(&occupancy, get_square(.c5) )
+    set_bit(&occupancy, get_square(.f2) )
+    set_bit(&occupancy, get_square(.g7) )
+    set_bit(&occupancy, get_square(.b2) )
+    set_bit(&occupancy, get_square(.g5) )
+    set_bit(&occupancy, get_square(.e2) )
+    set_bit(&occupancy, get_square(.e7) )
+    print_bitboard(occupancy)
+
+    print_bitboard(get_bishop_attacks(get_square(.d4), occupancy))
+    print_bitboard(get_rook_attacks(get_square(.e5), occupancy))
 }
