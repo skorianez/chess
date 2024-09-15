@@ -396,6 +396,25 @@ get_rook_attacks:: proc(square: i32, occupancy: u64) -> u64 {
     return rook_attacks[square][o]
 }
 
+get_queen_attacks:: proc(square: i32, occupancy: u64) -> u64 {
+    
+    bishop_occupancy := occupancy
+    bishop_occupancy &= bishop_masks[square]
+    bishop_occupancy *= bishop_magic_numbers[square]
+    bishop_occupancy >>= (64 - u32(bishop_relevant_bits[square]))
+    queen_attacks := bishop_attacks[square][bishop_occupancy]
+
+    rook_occupancy := occupancy
+    rook_occupancy &= rook_masks[square]
+    rook_occupancy *= rook_magic_numbers[square]
+    rook_occupancy >>= (64 - u32(rook_relevant_bits[square]))
+    queen_attacks |= rook_attacks[square][rook_occupancy]
+
+    return queen_attacks
+}
+    
+
+
 init_all ::proc(){
     init_leapers_attacks()
     init_sliders_attacks(bishop)
@@ -412,13 +431,7 @@ castle : i32
 main :: proc() {
     init_all()
 
-    parse_fen(tricky_position)
-    print_board()
-
-    parse_fen(killer_position)
-    print_board()
-
-    parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kq - 0 1 ")
-    print_board()
+    occupancies :u64
+   print_bitboard( get_queen_attacks(get_square(.d4), occupancies) )
 
 }
