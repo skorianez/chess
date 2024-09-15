@@ -27,10 +27,10 @@ rook :: 0
 bishop :: 1
 
 // CASTLE STATE
-wk :: 0b0001 // white king can castle to the king side
-wq :: 0b0010 // white king can castle to the queen side
-bk :: 0b0100 // black king can castle to the king side
-bq :: 0b1000 // black king can castle to the queen side
+wk :i32: 0b0001 // white king can castle to the king side
+wq :i32: 0b0010 // white king can castle to the queen side
+bk :i32: 0b0100 // black king can castle to the king side
+bq :i32: 0b1000 // black king can castle to the queen side
 
 // PIECES Up Case WHITE, Lower Case BLACK
 piece :: enum i32 { P,N,B,R,Q,K,p,n,b,r,q,k }
@@ -307,6 +307,37 @@ print_bitboard :: proc(bitboard: u64) {
     fmt.printf("\n     Bitboard: %v\n\n", bitboard)
 }
 
+print_board :: proc() {
+    for rank in 0..<8 {
+        for file in 0..<8 {
+            square := rank * 8 + file
+
+            if file == 0 {
+                fmt.printf("  %v ", 8 - rank )
+            }
+
+            piece := -1
+            for bb_piece in 0..<12 {
+                if get_bit( bitboards[bb_piece], i32(square)) {
+                    piece = bb_piece
+                }
+            }
+
+            fmt.printf(" %s", piece == -1 ? ".": unicode_pieces[piece])
+        }
+        fmt.println()
+    }
+    fmt.print ("\n     a b c d e f g h\n\n")
+    fmt.printf ("      Side: %s\n", side == white ? "white":"black")
+    fmt.printf (" Enpassant: %s\n", enpassant != get_square(.no_sq) ? square_to_coordinates[enpassant] : "no")
+    fmt.printf ("  Castling: %c%c%c%c\n\n", 
+        castle & wk > 0 ? 'K' : '-', 
+        castle & wq > 0 ? 'Q' : '-', 
+        castle & bk > 0 ? 'k' : '-', 
+        castle & bq > 0 ? 'q' : '-', 
+    )
+}
+
 set_occupancy :: proc(index, bits_in_mask :i32, attack_mask :u64) -> u64 {
     occupancy : u64
     am := attack_mask
@@ -374,15 +405,30 @@ init_all ::proc(){
 // DEFINE BITBOARDS (GAME STRUCT?)
 bitboards: [12]u64
 occupancies: [3]u64
-side: i32 = -1
+side: i32 
 enpassant : i32 = get_square(.no_sq)
 castle : i32
 
 main :: proc() {
     init_all()
 
+    set_bit(&bitboards[piece.P], get_square(.a2) )
+    set_bit(&bitboards[piece.P], get_square(.b2) )
+    set_bit(&bitboards[piece.P], get_square(.c2) )
+    set_bit(&bitboards[piece.P], get_square(.d2) )
     set_bit(&bitboards[piece.P], get_square(.e2) )
-    print_bitboard(bitboards[piece.P])
-    fmt.printf("piece: %s\n", unicode_pieces[piece.P] )
+    set_bit(&bitboards[piece.P], get_square(.f2) )
+    set_bit(&bitboards[piece.P], get_square(.g2) )
+    set_bit(&bitboards[piece.P], get_square(.h2) )
+    set_bit(&bitboards[piece.N], get_square(.b1) )
+    set_bit(&bitboards[piece.N], get_square(.g1) )
+    enpassant = get_square(.e3)
+
+    castle = 0b1111
+
+    //print_bitboard(bitboards[piece.P])
+
+    print_board()
+
 
 }
