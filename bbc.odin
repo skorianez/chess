@@ -13,12 +13,15 @@ board_square :: enum {
     a1, b1, c1, d1, e1, f1, g1, h1,
 }
 
-get_square :: proc( square : board_square) -> u64 {
-    return u64(square)
+get_square :: proc( square : board_square) -> i32 {
+    return i32(square)
 }
 
+// C ENUM
 white :: 0
 black :: 1
+rook :: 0
+bishop :: 1
 
 square_to_coordinates : []string = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -32,22 +35,22 @@ square_to_coordinates : []string = {
 }
 
 
-get_bit :: proc(bitboard, square: u64) -> bool {
-    return (bitboard & (1 << square)) > 0
+get_bit :: proc(bitboard: u64, square: i32) -> bool {
+    return (bitboard & (1 << u32(square))) > 0
 }
 
-set_bit :: proc( bitboard: ^u64, square: u64 ) {
-     bitboard^ |= ( 1 << square )
+set_bit :: proc( bitboard: ^u64, square: i32 ) {
+     bitboard^ |= ( 1 << u32(square) )
 }
 
-pop_bit :: proc( bitboard: ^u64, square: u64 ) {
+pop_bit :: proc( bitboard: ^u64, square: i32 ) {
     if get_bit(bitboard^, square)  {
-        bitboard^ ~= (1 << square)
+        bitboard^ ~= (1 << u32(square))
     }
 }
 
-count_bits :: proc(bitboard: u64) -> uint {
-    count: uint
+count_bits :: proc(bitboard: u64) -> i32 {
+    count: i32
     bb := bitboard
 
     for ; bb > 0 ; {
@@ -57,10 +60,9 @@ count_bits :: proc(bitboard: u64) -> uint {
     return count
 }
 
-// TODO MUDAR o retorno
-get_ls1b_index :: proc(bitboard: u64) -> int {
+get_ls1b_index :: proc(bitboard: u64) -> i32 {
     if bitboard == 0 { return -1 }
-    return int(count_bits((bitboard & -bitboard) - 1 ))
+    return count_bits((bitboard & -bitboard) - 1 )
 }
 
 // Attacks
@@ -70,7 +72,7 @@ not_hg_file :u64: 4557430888798830399
 not_ab_file :u64: 18229723555195321596
 
 
-bishop_relevant_bits: [64]uint = {
+bishop_relevant_bits: [64]i32 = {
     6, 5, 5, 5, 5, 5, 5, 6,
     5, 5, 5, 5, 5, 5, 5, 5,
     5, 5, 7, 7, 7, 7, 5, 5,
@@ -81,7 +83,7 @@ bishop_relevant_bits: [64]uint = {
     6, 5, 5, 5, 5, 5, 5, 6,
 }
 
-rook_relevant_bits: [64]uint = {
+rook_relevant_bits: [64]i32 = {
     12, 11, 11, 11, 11, 11, 11, 12,
     11, 10, 10, 10, 10, 10, 10, 11,
     11, 10, 10, 10, 10, 10, 10, 11,
@@ -96,7 +98,7 @@ pawn_attacks: [2][64]u64
 knight_attacks: [64]u64
 king_attacks: [64]u64
 
-mask_pawn_attacks :: proc(side: int, square: u64 ) -> u64 {
+mask_pawn_attacks :: proc(side: i32, square: i32 ) -> u64 {
     attacks, bitboard : u64
     set_bit( &bitboard, square)
 
@@ -111,7 +113,7 @@ mask_pawn_attacks :: proc(side: int, square: u64 ) -> u64 {
     return attacks
 }
 
-mask_knight_attacks :: proc(square: u64) -> u64 {
+mask_knight_attacks :: proc(square: i32) -> u64 {
     attacks, bitboard : u64
     set_bit( &bitboard, square)
 
@@ -128,7 +130,7 @@ mask_knight_attacks :: proc(square: u64) -> u64 {
     return attacks
 }
 
-mask_king_attacks :: proc(square: u64) -> u64 {
+mask_king_attacks :: proc(square: i32) -> u64 {
     attacks, bitboard : u64
     set_bit( &bitboard, square)
 
@@ -145,11 +147,11 @@ mask_king_attacks :: proc(square: u64) -> u64 {
     return attacks
 }
 
-mask_bishop_attacks :: proc(square: u64) -> u64 {
+mask_bishop_attacks :: proc(square: i32) -> u64 {
     attacks: u64
 
-    tr :int = int(square) / 8
-    tf :int = int(square) % 8
+    tr := square / 8
+    tf := square % 8
 
     r := tr + 1; f := tf + 1
     for ; r <= 6 && f <= 6 ; f +=1 {
@@ -174,16 +176,16 @@ mask_bishop_attacks :: proc(square: u64) -> u64 {
         attacks |= (1 << u64(r * 8 + f))
         r -=1
     }
-
     return attacks
 }
 
-bishop_attacks_on_the_fly :: proc(square, block: u64) -> u64 {
+bishop_attacks_on_the_fly :: proc(square: i32, block: u64) -> u64 {
     attacks: u64
 
-    tr :int = int(square) / 8
-    tf :int = int(square) % 8
+    tr := square / 8
+    tf := square % 8
 
+    //for r,f := tr +1,tf+1 ; r <= 7 && f <= 7 ; r,f = r+1, f+1 {}
     r := tr + 1; f := tf + 1
     for ; r <= 7 && f <= 7 ; f +=1 {
         attacks |= (1 << u64(r * 8 + f))
@@ -215,11 +217,11 @@ bishop_attacks_on_the_fly :: proc(square, block: u64) -> u64 {
     return attacks
 }
 
-mask_rook_attacks :: proc(square: u64) -> u64 {
+mask_rook_attacks :: proc(square: i32) -> u64 {
     attacks: u64
 
-    tr :int = int(square) / 8
-    tf :int = int(square) % 8
+    tr := square / 8
+    tf := square % 8
 
     for r := tr + 1 ; r <= 6; r += 1 { attacks |= 1 << u64(r * 8 + tf) }
     for r := tr - 1 ; r >= 1; r -= 1 { attacks |= 1 << u64(r * 8 + tf) }
@@ -229,11 +231,11 @@ mask_rook_attacks :: proc(square: u64) -> u64 {
     return attacks
 }
 
-rook_attacks_on_the_fly :: proc(square, block: u64) -> u64 {
+rook_attacks_on_the_fly :: proc(square: i32, block: u64) -> u64 {
     attacks: u64
 
-    tr :int = int(square) / 8
-    tf :int = int(square) % 8
+    tr := square / 8
+    tf := square % 8
 
     for r := tr + 0 ; r <= 7; r += 1 {
         attacks |= 1 << u64(r * 8 + tf)
@@ -257,18 +259,18 @@ rook_attacks_on_the_fly :: proc(square, block: u64) -> u64 {
 
 
 init_leapers_attacks :: proc() {
-    for square := 0; square < 64 ; square += 1 {
-        pawn_attacks[white][square] = mask_pawn_attacks(white, u64(square))
-        pawn_attacks[black][square] = mask_pawn_attacks(black, u64(square))
-        knight_attacks[square] = mask_knight_attacks(u64(square))
-        king_attacks[square] = mask_king_attacks(u64(square))
+    for square in 0..<64 {
+        pawn_attacks[white][square] = mask_pawn_attacks(white, i32(square))
+        pawn_attacks[black][square] = mask_pawn_attacks(black, i32(square))
+        knight_attacks[square] = mask_knight_attacks(i32(square))
+        king_attacks[square] = mask_king_attacks(i32(square))
     }
 }
 
 // print bitboard
 print_bitboard :: proc(bitboard: u64) {
-    for rank := 0; rank < 8 ; rank += 1 {
-        for file := 0; file < 8 ; file += 1 {
+    for rank in 0..<8 {
+        for file in 0..<8 {
             // convert file & rank into square index
             square := rank * 8 + file
 
@@ -276,7 +278,7 @@ print_bitboard :: proc(bitboard: u64) {
                 fmt.printf("  %v ", 8 - rank )
             }
 
-            fmt.printf(" %v", get_bit(bitboard, u64(square) ) ? 1 : 0 )
+            fmt.printf(" %v", get_bit(bitboard, i32(square) ) ? 1 : 0 )
         }
         fmt.println()
     }
@@ -285,15 +287,15 @@ print_bitboard :: proc(bitboard: u64) {
 }
 
 
-set_occupancy :: proc(index, bits_in_mask :uint, attack_mask :u64) -> u64 {
+set_occupancy :: proc(index, bits_in_mask :i32, attack_mask :u64) -> u64 {
     occupancy : u64
     am := attack_mask
 
-    for count :uint= 0; count < bits_in_mask ; count += 1 {
-        square := u64(get_ls1b_index(am))
+    for count in 0..< bits_in_mask {
+        square := get_ls1b_index(am)
         pop_bit( &am , square )
-        if index & (1 << count) > 0 {
-            occupancy |= (1 << square)
+        if index & (1 << u32(count)) > 0 {
+            occupancy |= (1 << u32(square))
         }
     }
 
@@ -303,9 +305,5 @@ set_occupancy :: proc(index, bits_in_mask :uint, attack_mask :u64) -> u64 {
 main :: proc() {
     init_leapers_attacks()
 
-    print_bitboard( u64(get_random_u32_number()))
-    print_bitboard( u64(get_random_u32_number() & 0xFFFF))
-    print_bitboard( get_random_u64_number())
-    print_bitboard( generate_magic_number())
-
+    init_magic_number()
 }
