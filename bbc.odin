@@ -25,6 +25,20 @@ both :: 2
 // C ENUM PIECE
 rook :: 0
 bishop :: 1
+// C ENUM PIEC
+P :: 0
+N :: 1
+B :: 2
+R :: 3 
+Q :: 4
+K :: 5
+p :: 6
+n :: 7
+b :: 8
+r :: 9
+q :: 10
+k :: 11
+
 
 // CASTLE STATE
 wk :i32: 0b0001 // white king can castle to the king side
@@ -473,15 +487,3 @@ occupancies: [3]u64
 side: i32 
 enpassant : i32 = get_square(.no_sq)
 castle : i32
-
-main :: proc() {
-    init_all()
-
-    parse_fen(tricky_position)
-    print_board()
-    //print_bitboard(occupancies[both])
-
-    print_attacked_squares(white)
-    print_attacked_squares(black)
-
-}
