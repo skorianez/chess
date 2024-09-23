@@ -590,10 +590,3 @@ init_all :: proc() {
 	init_sliders_attacks(rook)
 	init_promoted_pieces()
 }
-
-// DEFINE BITBOARDS (GAME STRUCT?)
-bitboards: [12]u64
-occupancies: [3]u64
-side: i32
-enpassant: i32 = i32(board_square.no_sq)
-castle: i32
