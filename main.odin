@@ -24,11 +24,13 @@ main :: proc() {
         move := move_list.moves[move_count]
         copy_board()
         make_move(move, ALL_MOVES) 
-        print_board()
+        //print_board()
+        print_bitboard(bitboards[get_move_piece(move)])
         libc.getchar()
 
         take_back()
-        print_board()
+        //print_board()
+        print_bitboard(bitboards[get_move_piece(move)])
         libc.getchar()
     }
 }

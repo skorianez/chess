@@ -277,10 +277,27 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
         enpass := get_move_enpassant(move)
         castling := get_move_castling(move)
 
-        //move piece
+        // move piece
         pop_bit(&bitboards[piece], source_square)
         set_bit(&bitboards[piece], target_square)
 
+        // handling capture moves
+        if get_move_capture(move) > 0 {
+            start_piece, end_piece : i32
+            if side == white {
+                start_piece = i32(Piece.p)
+                end_piece = i32(Piece.k)
+            } else {
+                start_piece = i32(Piece.P)
+                end_piece = i32(Piece.K)
+            }
+            for bb_piece in start_piece..=end_piece {
+                if get_bit(bitboards[bb_piece], target_square) {
+                    pop_bit(&bitboards[bb_piece], target_square)
+                    break
+                }
+            }
+        }
 
     } else {
         if get_move_capture(move) > 0 {
