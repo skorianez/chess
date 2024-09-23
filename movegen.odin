@@ -318,6 +318,15 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
         // reset enpassant square
         enpassant = i32(board_square.no_sq)
 
+        // handle double pawn push
+        if double_push > 0 {
+            if side == white {
+                enpassant = target_square + 8
+            } else {
+                enpassant = target_square - 8
+            }
+        }
+
     } else {
         if get_move_capture(move) > 0 {
             make_move(move, ALL_MOVES)
