@@ -9,7 +9,8 @@ generate_moves :: proc() {
     bitboard, attacks : u64
 
     for piece in 0..<12 {
-        bitboard = bitboards[piece]     
+        bitboard = bitboards[piece]
+
         // pawns and king castling
         if side == white {
             if piece == P {
@@ -20,15 +21,15 @@ generate_moves :: proc() {
                     if !(target_square < i32(board_square.a8)) && !get_bit(occupancies[both], target_square ) {
                         // pawn promotion
                         if source_square >= i32(board_square.a7)  && source_square <= i32(board_square.h7) {
-                            fmt.printf("pawn promo: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn promo\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                         } else {
                             // one square ahead
-                            fmt.printf("pawn push: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                             // two square ahead
                             if (source_square >= i32(board_square.a2) && source_square <= i32(board_square.h2))  &&
                                 !get_bit(occupancies[both], target_square - 8)                             {
                                 
-                                    fmt.printf("pawn double push: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square -8 ])
+                                    fmt.printf("%s%s pawn double push\n", square_to_coordinates[source_square], square_to_coordinates[target_square -8 ])
                             }
                         }
                     }
@@ -37,10 +38,10 @@ generate_moves :: proc() {
                         target_square = get_ls1b_index(attacks)
 
                         if source_square >= i32(board_square.a7)  && source_square <= i32(board_square.h7) {
-                            fmt.printf("pawn capture promo: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn capture promo\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                         } else {
                             // one square ahead
-                            fmt.printf("pawn capture: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                         }    
 
                         pop_bit(&attacks, target_square)
@@ -50,7 +51,7 @@ generate_moves :: proc() {
                         enpassant_attacks := pawn_attacks[side][source_square] & ( 1 << u32(enpassant))
                         if enpassant_attacks > 0 {
                             target_enpassant := get_ls1b_index(enpassant_attacks)
-                            fmt.printf("pawn enpassant: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant])
+                            fmt.printf("%s%s pawn enpassant\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant])
                         }
                     }
 
@@ -66,7 +67,7 @@ generate_moves :: proc() {
                         // king and f1 cant be attacked
                         if (is_square_attacked(get_square(.e1), black) == 0)  &&
                         (is_square_attacked(get_square(.f1), black)== 0) {
-                            fmt.printf("castle move e1g1\n")
+                            fmt.printf("e1g1 castle move\n")
                         }
                     }
                 }
@@ -78,7 +79,7 @@ generate_moves :: proc() {
                         // king and f1 cant be attacked
                         if (is_square_attacked(get_square(.e1), black) == 0)  &&
                         (is_square_attacked(get_square(.d1), black)== 0) {
-                            fmt.printf("castle move e1c1\n")
+                            fmt.printf("e1c1 castle move\n")
                         }
                     }
                 }
@@ -93,14 +94,14 @@ generate_moves :: proc() {
                     if !(target_square > i32(board_square.h1)) && !get_bit(occupancies[both], target_square ) {
                         // pawn promotion
                         if source_square >= i32(board_square.a2)  && source_square <= i32(board_square.h2) {
-                            fmt.printf("pawn promo: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn promo\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                         } else {
                             // one square ahead
-                            fmt.printf("pawn push: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn push\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                             // two square ahead
                             if (source_square >= i32(board_square.a7) && source_square <= i32(board_square.h7))  &&
                                 !get_bit(occupancies[both], target_square + 8){
-                                    fmt.printf("pawn double push: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square + 8])
+                                    fmt.printf("%s%s pawn double push\n", square_to_coordinates[source_square], square_to_coordinates[target_square + 8])
                             }
                         }
                     }
@@ -110,10 +111,10 @@ generate_moves :: proc() {
                         target_square = get_ls1b_index(attacks)
 
                         if source_square >= i32(board_square.a2)  && source_square <= i32(board_square.h2) {
-                            fmt.printf("pawn capture promo: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn capture promo\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                         } else {
                             // one square ahead
-                            fmt.printf("pawn capture: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
+                            fmt.printf("%s%s pawn capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                         }    
 
                         pop_bit(&attacks, target_square)
@@ -123,7 +124,7 @@ generate_moves :: proc() {
                         enpassant_attacks := pawn_attacks[side][source_square] & ( 1 << u32(enpassant))
                         if enpassant_attacks > 0 {
                             target_enpassant := get_ls1b_index(enpassant_attacks)
-                            fmt.printf("pawn enpassant: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant])
+                            fmt.printf("%s%s pawn enpassant\n", square_to_coordinates[source_square], square_to_coordinates[target_enpassant])
                         }
                     }
                     //
@@ -138,7 +139,7 @@ generate_moves :: proc() {
                         // king and f1 cant be attacked
                         if (is_square_attacked(get_square(.e8), white) == 0)  &&
                         (is_square_attacked(get_square(.f8), white)== 0) {
-                            fmt.printf("castle move e8g8\n")
+                            fmt.printf("e8g8 castle move \n")
                         }
                     }
                 }
@@ -150,17 +151,96 @@ generate_moves :: proc() {
                         // king and f1 cant be attacked
                         if (is_square_attacked(get_square(.e8), white) == 0)  &&
                         (is_square_attacked(get_square(.d8), white)== 0) {
-                            fmt.printf("castle move e8c8\n")
+                            fmt.printf("e8c8 castle move \n")
                         }
                     }
                 }                
             }
         }
         // knight
-
+        if side == white ? piece == N : piece == n {
+            for bitboard > 0 {
+                source_square = get_ls1b_index(bitboard)
+                attacks = knight_attacks[source_square] & ((side == white) ? ~occupancies[white] : ~occupancies[black])
+                for attacks > 0 {
+                    target_square = get_ls1b_index(attacks)
+                    if !get_bit((side == white? occupancies[black]:occupancies[white]), target_square ) {
+                        fmt.printf("%s%s piece move\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    } else {
+                        fmt.printf("%s%s piece capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    }
+                    pop_bit(&attacks, target_square)
+                }
+                pop_bit(&bitboard, source_square)
+            }
+        }
         // bishop
+        if side == white ? piece == B : piece == b {
+            for bitboard > 0 {
+                source_square = get_ls1b_index(bitboard)
+                attacks = get_bishop_attacks(source_square,occupancies[both])  & ((side == white) ? ~occupancies[white] : ~occupancies[black])
+                for attacks > 0 {
+                    target_square = get_ls1b_index(attacks)
+                    if !get_bit((side == white? occupancies[black]:occupancies[white]), target_square ) {
+                        fmt.printf("%s%s piece move\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    } else {
+                        fmt.printf("%s%s piece capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    }
+                    pop_bit(&attacks, target_square)
+                }
+                pop_bit(&bitboard, source_square)
+            }
+        }
         // rook
+        if side == white ? piece == R : piece == r {
+            for bitboard > 0 {
+                source_square = get_ls1b_index(bitboard)
+                attacks = get_rook_attacks(source_square,occupancies[both])  & ((side == white) ? ~occupancies[white] : ~occupancies[black])
+                for attacks > 0 {
+                    target_square = get_ls1b_index(attacks)
+                    if !get_bit((side == white? occupancies[black]:occupancies[white]), target_square ) {
+                        fmt.printf("%s%s piece move\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    } else {
+                        fmt.printf("%s%s piece capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    }
+                    pop_bit(&attacks, target_square)
+                }
+                pop_bit(&bitboard, source_square)
+            }
+        }
         // queen
+        if side == white ? piece == Q : piece == q {
+            for bitboard > 0 {
+                source_square = get_ls1b_index(bitboard)
+                attacks = get_queen_attacks(source_square,occupancies[both])  & ((side == white) ? ~occupancies[white] : ~occupancies[black])
+                for attacks > 0 {
+                    target_square = get_ls1b_index(attacks)
+                    if !get_bit((side == white? occupancies[black]:occupancies[white]), target_square ) {
+                        fmt.printf("%s%s piece move\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    } else {
+                        fmt.printf("%s%s piece capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    }
+                    pop_bit(&attacks, target_square)
+                }
+                pop_bit(&bitboard, source_square)
+            }
+        }
         // king
+        if side == white ? piece == K : piece == k {
+            for bitboard > 0 {
+                source_square = get_ls1b_index(bitboard)
+                attacks = king_attacks[source_square] & ((side == white) ? ~occupancies[white] : ~occupancies[black])
+                for attacks > 0 {
+                    target_square = get_ls1b_index(attacks)
+                    if !get_bit((side == white? occupancies[black]:occupancies[white]), target_square ) {
+                        fmt.printf("%s%s piece move\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    } else {
+                        fmt.printf("%s%s piece capture\n", square_to_coordinates[source_square], square_to_coordinates[target_square])                        
+                    }
+                    pop_bit(&attacks, target_square)
+                }
+                pop_bit(&bitboard, source_square)
+            }
+        }
     }
 }
