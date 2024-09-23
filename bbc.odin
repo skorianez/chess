@@ -117,6 +117,7 @@ piece :: enum i32 {
 	k,
 }
 
+
 unicode_pieces: [12]string = {
 	"♙",
 	"♘",
