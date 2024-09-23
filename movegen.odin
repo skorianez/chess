@@ -4,6 +4,10 @@ import "core:fmt"
 
 // Move Generation
 
+// C ENUM
+ALL_MOVES :: 0
+ONLY_CAPTURES :: 1
+
 generate_moves :: proc(move_list: ^Moves) {
     source_square, target_square : i32
     bitboard, attacks : u64
@@ -257,4 +261,33 @@ generate_moves :: proc(move_list: ^Moves) {
             }
         }
     }
+}
+
+make_move :: proc(move , move_flag :i32 ) -> i32 {
+    if move_flag == ALL_MOVES {
+        copy_board()
+
+        // parse move
+        source_square := get_move_source(move)
+        target_square := get_move_target(move)
+        piece := get_move_piece(move)
+        promoted := get_move_promoted(move)
+        capture := get_move_capture(move)
+        double := get_move_double(move)
+        enpass := get_move_enpassant(move)
+        castling := get_move_castling(move)
+
+        //move piece
+        pop_bit(&bitboards[piece], source_square)
+        set_bit(&bitboards[piece], target_square)
+
+
+    } else {
+        if get_move_capture(move) > 0 {
+            make_move(move, ALL_MOVES)
+        } else {
+            return 0
+        }
+    }
+    return 0
 }
