@@ -8,7 +8,7 @@ generate_moves :: proc() {
     source_square, target_square : i32
     bitboard, attacks : u64
 
-    for piece in P..<k {
+    for piece in 0..<12 {
         bitboard = bitboards[piece]     
         // pawns and king castling
         if side == white {
@@ -57,7 +57,34 @@ generate_moves :: proc() {
                     pop_bit(&bitboard, source_square)
                 }
             }
-        } else {
+            // Castling moves
+            if piece == K {
+                // king side castling
+                if (castle & wk) > 0 {
+                    if (!get_bit(occupancies[both], get_square(.f1))) &&
+                    (!get_bit(occupancies[both], get_square(.g1))) {
+                        // king and f1 cant be attacked
+                        if (is_square_attacked(get_square(.e1), black) == 0)  &&
+                        (is_square_attacked(get_square(.f1), black)== 0) {
+                            fmt.printf("castle move e1g1\n")
+                        }
+                    }
+                }
+                // queen side castling
+                if (castle & wq) > 0 {
+                    if (!get_bit(occupancies[both], get_square(.d1))) &&
+                    (!get_bit(occupancies[both], get_square(.c1))) &&
+                    (!get_bit(occupancies[both], get_square(.b1))) {
+                        // king and f1 cant be attacked
+                        if (is_square_attacked(get_square(.e1), black) == 0)  &&
+                        (is_square_attacked(get_square(.d1), black)== 0) {
+                            fmt.printf("castle move e1c1\n")
+                        }
+                    }
+                }
+                
+            }
+        } else { //generate black moves
             if piece == p {
                 for bitboard > 0 {
                     source_square = get_ls1b_index(bitboard)
@@ -72,8 +99,7 @@ generate_moves :: proc() {
                             fmt.printf("pawn push: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square])
                             // two square ahead
                             if (source_square >= i32(board_square.a7) && source_square <= i32(board_square.h7))  &&
-                                !get_bit(occupancies[both], target_square + 8)                             {
-                                
+                                !get_bit(occupancies[both], target_square + 8){
                                     fmt.printf("pawn double push: %s->%s\n", square_to_coordinates[source_square], square_to_coordinates[target_square + 8])
                             }
                         }
@@ -103,6 +129,31 @@ generate_moves :: proc() {
                     //
                     pop_bit(&bitboard, source_square)
                 }
+            }
+            if piece == k {
+                // king side castling
+                if (castle & bk) > 0 {
+                    if (!get_bit(occupancies[both], get_square(.f8))) &&
+                    (!get_bit(occupancies[both], get_square(.g8))) {
+                        // king and f1 cant be attacked
+                        if (is_square_attacked(get_square(.e8), white) == 0)  &&
+                        (is_square_attacked(get_square(.f8), white)== 0) {
+                            fmt.printf("castle move e8g8\n")
+                        }
+                    }
+                }
+                // queen side castling
+                if (castle & bq) > 0 {
+                    if (!get_bit(occupancies[both], get_square(.d8))) &&
+                    (!get_bit(occupancies[both], get_square(.c8))) &&
+                    (!get_bit(occupancies[both], get_square(.B8))) {
+                        // king and f1 cant be attacked
+                        if (is_square_attacked(get_square(.e8), white) == 0)  &&
+                        (is_square_attacked(get_square(.d8), white)== 0) {
+                            fmt.printf("castle move e8c8\n")
+                        }
+                    }
+                }                
             }
         }
         // knight

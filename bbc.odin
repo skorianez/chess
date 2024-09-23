@@ -4,7 +4,7 @@ import "core:fmt"
 
 board_square :: enum i32 {
 	a8,
-	b8,
+	B8,
 	c8,
 	d8,
 	e8,
