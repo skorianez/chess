@@ -273,7 +273,7 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
         piece := get_move_piece(move)
         promoted_piece := get_move_promoted(move)
         capture := get_move_capture(move)
-        double := get_move_double(move)
+        double_push := get_move_double(move)
         enpass := get_move_enpassant(move)
         castling := get_move_castling(move)
 
@@ -298,12 +298,26 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
                 }
             }
         }
+
         // handle pawn promotions
         if promoted_piece > 0 {
             pop_bit(&bitboards[side==white ? Piece.P : Piece.p], target_square)
             set_bit(&bitboards[promoted_piece], target_square)
 
         }
+
+        // handle enpassant captures
+        if enpassant > 0 {
+            if side == white {
+                pop_bit(&bitboards[Piece.p], target_square + 8)
+            } else {
+                pop_bit(&bitboards[Piece.P], target_square - 8) 
+            }
+        }
+
+        // reset enpassant square
+        enpassant = i32(board_square.no_sq)
+
     } else {
         if get_move_capture(move) > 0 {
             make_move(move, ALL_MOVES)

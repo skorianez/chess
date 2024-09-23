@@ -2,7 +2,7 @@ package bbc
 
 import "core:fmt"
 
-board_square :: enum i32 {
+board_square :: enum {
 	a8, B8,	c8, d8, e8, f8, g8, h8,
 	a7, b7, c7, d7, e7, f7, g7, h7,
 	a6, b6, c6, d6, e6, f6, g6, h6,
@@ -29,7 +29,7 @@ bk: i32 : 0b0100 // black king can castle to the king side
 bq: i32 : 0b1000 // black king can castle to the queen side
 
 // PIECES Up Case WHITE, Lower Case BLACK
-Piece :: enum i32 {
+Piece :: enum {
 	P, N, B, R, Q, K,
 	p, n, b, r, q, k,
 }
