@@ -30,3 +30,53 @@ get_move_double    :: proc(move :i32) -> i32 { return (move & 0x20_0000) >> 21 }
 get_move_enpassant :: proc(move :i32) -> i32 { return (move & 0x40_0000) >> 22 }
 get_move_castling  :: proc(move :i32) -> i32 { return (move & 0x80_0000) >> 23 }
 
+Moves :: struct {
+    moves: [256]i32,
+    count: i32, // TODO: Tirar
+}
+
+promoted_pieces: [12]u8 = {}
+
+init_promoted_pieces :: proc(){
+    promoted_pieces[Q] = 'q'
+    promoted_pieces[R] = 'r'
+    promoted_pieces[B] = 'b'
+    promoted_pieces[N] = 'n'
+    promoted_pieces[q] = 'q'
+    promoted_pieces[r] = 'r'
+    promoted_pieces[b] = 'b'
+    promoted_pieces[n] = 'n'
+}
+
+print_move :: proc(move: i32){
+    fmt.printf("%s%s%c\n",
+        square_to_coordinates[get_move_source(move)],
+        square_to_coordinates[get_move_target(move)],
+        promoted_pieces[get_move_promoted(move)]
+    )
+}
+
+print_move_list :: proc(move_list: ^Moves){
+    fmt.printf("\n   move   piece   capture   double   enpassant   castling\n")
+    for move_count in 0..<move_list.count{
+        move := move_list.moves[move_count]
+        fmt.printf(
+               "   %s%s%c  %s       %d         %d        %d           %d\n",
+            square_to_coordinates[get_move_source(move)],
+            square_to_coordinates[get_move_target(move)],
+            promoted_pieces[get_move_promoted(move)],
+            unicode_pieces[get_move_piece(move)],
+            get_move_capture(move),
+            get_move_double(move),
+            get_move_enpassant(move),
+            get_move_castling(move)
+        )
+ 
+    }
+    fmt.printf("\nTotal number of moves: %d\n\n", move_list.count)
+}
+
+add_move :: proc(move_list : ^Moves, move: i32 ){
+    move_list.moves[move_list.count] = move
+    move_list.count += 1
+}

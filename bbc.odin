@@ -738,6 +738,7 @@ init_all :: proc() {
 	init_leapers_attacks()
 	init_sliders_attacks(bishop)
 	init_sliders_attacks(rook)
+	init_promoted_pieces()
 }
 
 // DEFINE BITBOARDS (GAME STRUCT?)
