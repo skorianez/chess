@@ -3,75 +3,15 @@ package bbc
 import "core:fmt"
 
 board_square :: enum i32 {
-	a8,
-	B8,
-	c8,
-	d8,
-	e8,
-	f8,
-	g8,
-	h8,
-	a7,
-	b7,
-	c7,
-	d7,
-	e7,
-	f7,
-	g7,
-	h7,
-	a6,
-	b6,
-	c6,
-	d6,
-	e6,
-	f6,
-	g6,
-	h6,
-	a5,
-	b5,
-	c5,
-	d5,
-	e5,
-	f5,
-	g5,
-	h5,
-	a4,
-	b4,
-	c4,
-	d4,
-	e4,
-	f4,
-	g4,
-	h4,
-	a3,
-	b3,
-	c3,
-	d3,
-	e3,
-	f3,
-	g3,
-	h3,
-	a2,
-	b2,
-	c2,
-	d2,
-	e2,
-	f2,
-	g2,
-	h2,
-	a1,
-	b1,
-	c1,
-	d1,
-	e1,
-	f1,
-	g1,
-	h1,
+	a8, B8,	c8, d8, e8, f8, g8, h8,
+	a7, b7, c7, d7, e7, f7, g7, h7,
+	a6, b6, c6, d6, e6, f6, g6, h6,
+	a5, b5, c5, d5, e5, f5, g5, h5,
+	a4, b4, c4, d4, e4, f4, g4, h4,
+	a3, b3, c3, d3, e3, f3, g3, h3,
+	a2, b2, c2, d2, e2, f2, g2, h2,
+	a1, b1, c1, d1, e1, f1, g1, h1,
 	no_sq,
-}
-
-get_square :: proc(square: board_square) -> i32 {
-	return i32(square)
 }
 
 // C ENUM COLORS
@@ -81,19 +21,6 @@ both :: 2
 // C ENUM PIECE
 rook :: 0
 bishop :: 1
-// C ENUM PIEC
-P :: 0
-N :: 1
-B :: 2
-R :: 3
-Q :: 4
-K :: 5
-p :: 6
-n :: 7
-b :: 8
-r :: 9
-q :: 10
-k :: 11
 
 // CASTLE STATE
 wk: i32 : 0b0001 // white king can castle to the king side
@@ -102,103 +29,26 @@ bk: i32 : 0b0100 // black king can castle to the king side
 bq: i32 : 0b1000 // black king can castle to the queen side
 
 // PIECES Up Case WHITE, Lower Case BLACK
-piece :: enum i32 {
-	P,
-	N,
-	B,
-	R,
-	Q,
-	K,
-	p,
-	n,
-	b,
-	r,
-	q,
-	k,
+Piece :: enum i32 {
+	P, N, B, R, Q, K,
+	p, n, b, r, q, k,
 }
 
-
 unicode_pieces: [12]string = {
-	"♙",
-	"♘",
-	"♗",
-	"♖",
-	"♕",
-	"♔",
-	"♟︎",
-	"♞",
-	"♝",
-	"♜",
-	"♛",
-	"♚",
+	"♙", "♘", "♗", "♖", "♕", "♔",
+	"♟︎", "♞", "♝", "♜", "♛", "♚",
 }
 // USAR: fmt.printf("piece: %s\n", unicode_pieces[piece.P] ) // ♙
 
 square_to_coordinates: []string = {
-	"a8",
-	"b8",
-	"c8",
-	"d8",
-	"e8",
-	"f8",
-	"g8",
-	"h8",
-	"a7",
-	"b7",
-	"c7",
-	"d7",
-	"e7",
-	"f7",
-	"g7",
-	"h7",
-	"a6",
-	"b6",
-	"c6",
-	"d6",
-	"e6",
-	"f6",
-	"g6",
-	"h6",
-	"a5",
-	"b5",
-	"c5",
-	"d5",
-	"e5",
-	"f5",
-	"g5",
-	"h5",
-	"a4",
-	"b4",
-	"c4",
-	"d4",
-	"e4",
-	"f4",
-	"g4",
-	"h4",
-	"a3",
-	"b3",
-	"c3",
-	"d3",
-	"e3",
-	"f3",
-	"g3",
-	"h3",
-	"a2",
-	"b2",
-	"c2",
-	"d2",
-	"e2",
-	"f2",
-	"g2",
-	"h2",
-	"a1",
-	"b1",
-	"c1",
-	"d1",
-	"e1",
-	"f1",
-	"g1",
-	"h1",
+	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+	"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+	"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+	"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 }
 
 get_bit :: proc(bitboard: u64, square: i32) -> bool {
@@ -232,8 +82,8 @@ get_ls1b_index :: proc(bitboard: u64) -> i32 {
 }
 
 // Attacks
-not_a_file: u64 : 18374403900871474942
-not_h_file: u64 : 9187201950435737471
+not_a_file:  u64 : 18374403900871474942
+not_h_file:  u64 : 9187201950435737471
 not_hg_file: u64 : 4557430888798830399
 not_ab_file: u64 : 18229723555195321596
 
@@ -593,7 +443,7 @@ print_board :: proc() {
 	fmt.printf("      Side: %s\n", side == white ? "white" : "black")
 	fmt.printf(
 		" Enpassant: %s\n",
-		enpassant != get_square(.no_sq) ? square_to_coordinates[enpassant] : "no",
+		enpassant != i32(board_square.no_sq)  ? square_to_coordinates[enpassant] : "no",
 	)
 	fmt.printf(
 		"  Castling: %c%c%c%c\n\n",
@@ -627,7 +477,7 @@ init_sliders_attacks :: proc(piece: i32) {
 		attack_mask := piece == bishop ? bishop_masks[square] : rook_masks[square]
 		relevant_bits_count := count_bits(attack_mask)
 
-		occupancy_indicies := 1 << u32(relevant_bits_count)
+		occupancy_indicies := (1 << u32(relevant_bits_count))
 
 		for index in 0 ..< occupancy_indicies {
 			if piece == bishop {
@@ -688,33 +538,33 @@ get_queen_attacks :: proc(square: i32, occupancy: u64) -> u64 {
 
 is_square_attacked :: proc(square, side: i32) -> i32 {
 	// attacked by white pawns
-	if (side == white) && (pawn_attacks[black][square] & bitboards[piece.P] > 0) {return 1}
+	if (side == white) && (pawn_attacks[black][square] & bitboards[Piece.P] > 0) {return 1}
 
 	// attacked by black pawns
-	if (side == black) && (pawn_attacks[white][square] & bitboards[piece.p] > 0) {return 1}
+	if (side == black) && (pawn_attacks[white][square] & bitboards[Piece.p] > 0) {return 1}
 
 	// attacked by knight
-	if (knight_attacks[square] & ((side == white) ? bitboards[piece.N] : bitboards[piece.n])) >
+	if (knight_attacks[square] & ((side == white) ? bitboards[Piece.N] : bitboards[Piece.n])) >
 	   0 {return 1}
 
 	// attacked by bishop
 	if (get_bishop_attacks(square, occupancies[both]) &
-		   (side == white ? bitboards[piece.B] : bitboards[piece.b])) >
+		   (side == white ? bitboards[Piece.B] : bitboards[Piece.b])) >
 	   0 {return 1}
 
 	// attacked by rook
 	if (get_rook_attacks(square, occupancies[both]) &
-		   (side == white ? bitboards[piece.R] : bitboards[piece.r])) >
+		   (side == white ? bitboards[Piece.R] : bitboards[Piece.r])) >
 	   0 {return 1}
 
 	// attacked by queen
 	if (get_queen_attacks(square, occupancies[both]) &
-		   (side == white ? bitboards[piece.Q] : bitboards[piece.q])) >
+		   (side == white ? bitboards[Piece.Q] : bitboards[Piece.q])) >
 	   0 {return 1}
 
 
 	// attack by king
-	if (king_attacks[square] & ((side == white) ? bitboards[piece.K] : bitboards[piece.k])) >
+	if (king_attacks[square] & ((side == white) ? bitboards[Piece.K] : bitboards[Piece.k])) >
 	   0 {return 1}
 
 	return 0
@@ -745,5 +595,5 @@ init_all :: proc() {
 bitboards: [12]u64
 occupancies: [3]u64
 side: i32
-enpassant: i32 = get_square(.no_sq)
+enpassant: i32 = i32(board_square.no_sq)
 castle: i32

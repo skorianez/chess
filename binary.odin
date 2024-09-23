@@ -38,14 +38,14 @@ Moves :: struct {
 promoted_pieces: [12]u8 = {}
 
 init_promoted_pieces :: proc(){
-    promoted_pieces[Q] = 'q'
-    promoted_pieces[R] = 'r'
-    promoted_pieces[B] = 'b'
-    promoted_pieces[N] = 'n'
-    promoted_pieces[q] = 'q'
-    promoted_pieces[r] = 'r'
-    promoted_pieces[b] = 'b'
-    promoted_pieces[n] = 'n'
+    promoted_pieces[Piece.Q] = 'q'
+    promoted_pieces[Piece.R] = 'r'
+    promoted_pieces[Piece.B] = 'b'
+    promoted_pieces[Piece.N] = 'n'
+    promoted_pieces[Piece.q] = 'q'
+    promoted_pieces[Piece.r] = 'r'
+    promoted_pieces[Piece.b] = 'b'
+    promoted_pieces[Piece.n] = 'n'
 }
 
 print_move :: proc(move: i32){
@@ -57,6 +57,11 @@ print_move :: proc(move: i32){
 }
 
 print_move_list :: proc(move_list: ^Moves){
+    if move_list.count == 0 {
+        fmt.printf("\nNo move in the move list\n\n")
+        return
+    }
+
     fmt.printf("\n   move   piece   capture   double   enpassant   castling\n")
     for move_count in 0..<move_list.count{
         move := move_list.moves[move_count]
@@ -64,7 +69,7 @@ print_move_list :: proc(move_list: ^Moves){
                "   %s%s%c  %s       %d         %d        %d           %d\n",
             square_to_coordinates[get_move_source(move)],
             square_to_coordinates[get_move_target(move)],
-            promoted_pieces[get_move_promoted(move)],
+            promoted_pieces[get_move_promoted(move)] > 0 ? promoted_pieces[get_move_promoted(move)] : ' ',
             unicode_pieces[get_move_piece(move)],
             get_move_capture(move),
             get_move_double(move),
