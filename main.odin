@@ -14,7 +14,7 @@ cmk_position :: "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - 
 main :: proc() {
     init_all()
 
-    parse_fen(tricky_position)
+    parse_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPpP/R3K2R b KQkq - 0 1 ")
     print_board()
 
     move_list : Moves
@@ -24,13 +24,13 @@ main :: proc() {
         move := move_list.moves[move_count]
         copy_board()
         make_move(move, ALL_MOVES) 
-        //print_board()
-        print_bitboard(bitboards[get_move_piece(move)])
+        print_board()
+        //print_bitboard(bitboards[get_move_piece(move)])
         libc.getchar()
 
         take_back()
-        //print_board()
-        print_bitboard(bitboards[get_move_piece(move)])
+        print_board()
+        //print_bitboard(bitboards[get_move_piece(move)])
         libc.getchar()
     }
 }
