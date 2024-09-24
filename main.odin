@@ -19,6 +19,8 @@ main :: proc() {
 
     move_list : Moves
     generate_moves(&move_list)
+    
+    start := get_time_ms()
 
     for move_count in 0..< move_list.count {
 
@@ -36,4 +38,5 @@ main :: proc() {
         print_board()
         libc.getchar()
     }
+    fmt.printf("tempo: %v ms\n", get_time_ms() - start)
 }
