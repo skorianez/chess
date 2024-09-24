@@ -8,6 +8,34 @@ import "core:fmt"
 ALL_MOVES     :: 0
 ONLY_CAPTURES :: 1
 
+/*
+                           castling   move     in      in
+                              right update     binary  decimal
+
+ king & rooks didn't move:     1111 & 1111  =  1111    15
+
+        white king  moved:     1111 & 1100  =  1100    12
+  white king's rook moved:     1111 & 1110  =  1110    14
+ white queen's rook moved:     1111 & 1101  =  1101    13
+     
+         black king moved:     1111 & 0011  =  1011    3
+  black king's rook moved:     1111 & 1011  =  1011    11
+ black queen's rook moved:     1111 & 0111  =  0111    7
+
+*/
+
+// castling constants
+castling_rights : [64]i32 = {
+    7, 15, 15, 15,  3, 15, 15, 11,
+   15, 15, 15, 15, 15, 15, 15, 15,
+   15, 15, 15, 15, 15, 15, 15, 15,
+   15, 15, 15, 15, 15, 15, 15, 15,
+   15, 15, 15, 15, 15, 15, 15, 15,
+   15, 15, 15, 15, 15, 15, 15, 15,
+   15, 15, 15, 15, 15, 15, 15, 15,
+   13, 15, 15, 15, 12, 15, 15, 14,
+}
+
 generate_moves :: proc(move_list: ^Moves) {
     source_square, target_square : i32
     bitboard, attacks : u64
@@ -349,6 +377,17 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
         castle &= castling_rights[source_square]
         castle &= castling_rights[target_square]
 
+        // update occupancies
+        occupancies = {} //reset occupancies
+        for bb_piece in Piece.P..=Piece.K {
+            occupancies[white] |= bitboards[bb_piece]
+        }
+        for bb_piece in Piece.p..=Piece.k {
+            occupancies[black] |= bitboards[bb_piece]
+        }
+        occupancies[both] |= occupancies[white]
+        occupancies[both] |= occupancies[black]
+
     } else {
         if get_move_capture(move) > 0 {
             make_move(move, ALL_MOVES)
@@ -359,30 +398,3 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
     return 0
 }
 
-/*
-                           castling   move     in      in
-                              right update     binary  decimal
-
- king & rooks didn't move:     1111 & 1111  =  1111    15
-
-        white king  moved:     1111 & 1100  =  1100    12
-  white king's rook moved:     1111 & 1110  =  1110    14
- white queen's rook moved:     1111 & 1101  =  1101    13
-     
-         black king moved:     1111 & 0011  =  1011    3
-  black king's rook moved:     1111 & 1011  =  1011    11
- black queen's rook moved:     1111 & 0111  =  0111    7
-
-*/
-
-// castling constants
-castling_rights : [64]i32 = {
-     7, 15, 15, 15,  3, 15, 15, 11,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    13, 15, 15, 15, 12, 15, 15, 14,
-}
