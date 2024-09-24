@@ -14,7 +14,7 @@ cmk_position :: "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - 
 main :: proc() {
     init_all()
 
-    parse_fen("r3k2r/p6p/8/8/8/8/P6P/R3K2R b KQkq - 0 1 ")
+    parse_fen("r3k2r/p6p/8/8/8/8/P6P/R3K2R w KQkq - 0 1 ")
     print_board()
 
     move_list : Moves
