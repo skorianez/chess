@@ -327,6 +327,24 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
             }
         }
 
+        // handle castling
+        if castling > 0 {
+            switch target_square {
+                case i32(board_square.g1) :
+                    pop_bit(&bitboards[Piece.R], i32(board_square.h1))
+                    set_bit(&bitboards[Piece.R], i32(board_square.f1))
+                case i32(board_square.c1) :
+                    pop_bit(&bitboards[Piece.R], i32(board_square.a1))
+                    set_bit(&bitboards[Piece.R], i32(board_square.d1))
+                case i32(board_square.g8) :
+                    pop_bit(&bitboards[Piece.r], i32(board_square.h8))
+                    set_bit(&bitboards[Piece.r], i32(board_square.f8))
+                case i32(board_square.c8) :
+                    pop_bit(&bitboards[Piece.r], i32(board_square.a8))
+                    set_bit(&bitboards[Piece.r], i32(board_square.d8))
+            }
+        }
+
     } else {
         if get_move_capture(move) > 0 {
             make_move(move, ALL_MOVES)
