@@ -291,6 +291,7 @@ generate_moves :: proc(move_list: ^Moves) {
     }
 }
 
+// TODO: change to return to bool?
 make_move :: proc(move , move_flag :i32 ) -> i32 {
     if move_flag == ALL_MOVES {
         copy_board()
@@ -387,6 +388,19 @@ make_move :: proc(move , move_flag :i32 ) -> i32 {
         }
         occupancies[both] |= occupancies[white]
         occupancies[both] |= occupancies[black]
+
+        // change side
+        side ~= 1
+
+        // make sure that king has not been exposed into check
+        king_square := get_ls1b_index(side == white ? bitboards[Piece.k] : bitboards[Piece.K])
+        if is_square_attacked( king_square, side) > 0 {
+            // move is illegal
+            take_back()
+            return 0
+        }
+
+        return 1
 
     } else {
         if get_move_capture(move) > 0 {

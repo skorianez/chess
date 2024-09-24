@@ -14,23 +14,26 @@ cmk_position :: "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - 
 main :: proc() {
     init_all()
 
-    parse_fen("r3k2r/p6p/8/8/8/8/P6P/R3K2R w KQkq - 0 1 ")
+    parse_fen("r3k2r/p1ppRpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1 ")
     print_board()
 
     move_list : Moves
     generate_moves(&move_list)
 
     for move_count in 0..< move_list.count {
+
         move := move_list.moves[move_count]
         copy_board()
-        make_move(move, ALL_MOVES) 
-        //print_board()
-        print_bitboard(occupancies[both])
+
+        if make_move(move, ALL_MOVES) == 0 {
+            //fmt.printf("Movimento não legal!\n")
+            continue
+        }
+        print_board()
         libc.getchar()
 
         take_back()
-        //print_board()
-        print_bitboard(occupancies[both])
+        print_board()
         libc.getchar()
     }
 }
